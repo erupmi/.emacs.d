@@ -15,19 +15,20 @@
     (load bootstrap-file nil 'nomessage))
 #+end_src
 
+#+RESULTS:
+: t
+
 * Internal Utilities
 
 ** Better Default
 
 #+begin_src emacs-lisp
   (setq-default
-
    inhibit-startup-screen t
    ;; Don't display comp warnings
    warning-suppress-log-types '((comp))
    ;; Don't create lockfiles
    create-lockfiles nil
-
    ;; prefer UTF8
    buffer-file-coding-system 'utf-8-unix
    default-file-name-coding-system 'utf-8-unix
@@ -35,10 +36,8 @@
    default-process-coding-system '(utf-8-unix . utf-8-unix)
    default-sendmail-coding-system 'utf-8-unix
    default-terminal-coding-system 'utf-8-unix
-
    ;; Add newline at bottom of file
    require-final-newline t
-
    ;; Backup setups
    ;; We use temporary directory /tmp for backup files
    ;; More versions should be saved
@@ -49,49 +48,37 @@
    kept-new-versions 6
    kept-old-versions 2
    version-control t
-
    ;; Skip prompt for xref find definition
    xref-prompt-for-identifier nil
-
    ;; Don't wait for keystrokes display
    echo-keystrokes 0.01
-
    ;; Disable margin for overline and underline
    overline-margin 0
    underline-minimum-offset 0
-
    ;; Allow resizing frame by pixels
    frame-resize-pixelwise t
-
    ;; Better scroll behavior
    mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
    mouse-wheel-progressive-speed nil
-
    ;; Disable copy region blink
    copy-region-blink-delay 0
-
    ;; Use short answer when asking yes or no
    read-answer-short t
-
    ;; Always follow link
    vc-follow-symlinks t
-
    ;; Use custom.el as custom file
    custom-file (expand-file-name "custom.el" user-emacs-directory)
-
    ;; Disable ring bell
    ring-bell-function 'ignore
-
    ;; Mouse yank at current point
    mouse-yank-at-point t
-
    ;; DWIM target for dired
    ;; Automatically use another dired buffer as target for copy/rename
    dired-dwim-target t
-
    ;; Use spaces instead of tab
    indent-tabs-mode nil
-
+   ;; use system clipboard
+   save-interprogram-paste-before-kill t
    ;; Don't echo multiline eldoc
    eldoc-echo-area-use-multiline-p nil)
 
@@ -109,7 +96,23 @@
 ** Enhace Scroll
 
 #+begin_src emacs-lisp
-  ;;(pixel-scroll-precision-mode)
+  (pixel-scroll-precision-mode)
+#+end_src
+
+** Recent opening files
+
+#+begin_src elisp
+  (add-hook 'after-init-hook 'recentf-mode)
+  (setq recentf-max-saved-items 300
+        recentf-auto-cleanup 'never)
+  (global-set-key (kbd "C-x C-r") 'recentf)
+#+end_src
+
+** Line number
+
+#+begin_src elisp
+  (add-hook 'after-init-hook 'global-display-line-numbers-mode)
+  (setq display-line-numbers-type 'relative)
 #+end_src
 
 ** IBuffer
@@ -199,7 +202,7 @@ Disable extra utilities:
 ** Fonts
 
 #+begin_src elisp
-  (set-frame-font "JetBrains Mono" nil t)
+  (set-frame-font "JetBrains Mono 11" nil t)
 #+end_src
 
 ** Which-Key
@@ -395,6 +398,7 @@ Disable extra utilities:
 #+begin_src elisp
   (straight-use-package 'haskell-mode)
   (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+  (add-hook 'haskell-mode-hook 'haskell-doc-mode)
   (add-hook 'haskell-mode-hook 'eglot-ensure)
 #+end_src
 
