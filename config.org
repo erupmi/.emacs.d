@@ -1,0 +1,407 @@
+* Download Manager
+
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 6))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+end_src
+
+* Internal Utilities
+
+** Better Default
+
+#+begin_src emacs-lisp
+  (setq-default
+
+   inhibit-startup-screen t
+   ;; Don't display comp warnings
+   warning-suppress-log-types '((comp))
+   ;; Don't create lockfiles
+   create-lockfiles nil
+
+   ;; prefer UTF8
+   buffer-file-coding-system 'utf-8-unix
+   default-file-name-coding-system 'utf-8-unix
+   default-keyboard-coding-system 'utf-8-unix
+   default-process-coding-system '(utf-8-unix . utf-8-unix)
+   default-sendmail-coding-system 'utf-8-unix
+   default-terminal-coding-system 'utf-8-unix
+
+   ;; Add newline at bottom of file
+   require-final-newline t
+
+   ;; Backup setups
+   ;; We use temporary directory /tmp for backup files
+   ;; More versions should be saved
+   backup-directory-alist `((".*" . ,temporary-file-directory))
+   auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
+   backup-by-copying t
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t
+
+   ;; Skip prompt for xref find definition
+   xref-prompt-for-identifier nil
+
+   ;; Don't wait for keystrokes display
+   echo-keystrokes 0.01
+
+   ;; Disable margin for overline and underline
+   overline-margin 0
+   underline-minimum-offset 0
+
+   ;; Allow resizing frame by pixels
+   frame-resize-pixelwise t
+
+   ;; Better scroll behavior
+   mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))
+   mouse-wheel-progressive-speed nil
+
+   ;; Disable copy region blink
+   copy-region-blink-delay 0
+
+   ;; Use short answer when asking yes or no
+   read-answer-short t
+
+   ;; Always follow link
+   vc-follow-symlinks t
+
+   ;; Use custom.el as custom file
+   custom-file (expand-file-name "custom.el" user-emacs-directory)
+
+   ;; Disable ring bell
+   ring-bell-function 'ignore
+
+   ;; Mouse yank at current point
+   mouse-yank-at-point t
+
+   ;; DWIM target for dired
+   ;; Automatically use another dired buffer as target for copy/rename
+   dired-dwim-target t
+
+   ;; Use spaces instead of tab
+   indent-tabs-mode nil
+
+   ;; Don't echo multiline eldoc
+   eldoc-echo-area-use-multiline-p nil)
+
+  (show-paren-mode -1)
+
+  (global-subword-mode 1)
+
+  (global-hl-line-mode t)
+
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Enhace Scroll
+
+#+begin_src emacs-lisp
+  ;;(pixel-scroll-precision-mode)
+#+end_src
+
+** IBuffer
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") #'ibuffer)
+  (setq ibuffer-expert t
+        ibuffer-movement-cycle nil
+        ibuffer-show-empty-filter-groups nil)
+
+  (straight-use-package 'ibuffer-project)
+  (add-hook 'ibuffer-hook
+            (lambda ()
+              (setq ibuffer-filter-groups (ibuffer-project-generate-filter-groups))))
+#+end_src
+
+** Better Delimitier
+
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook 'electric-pair-local-mode)
+  (add-hook 'conf-mode-hook 'electric-pair-local-mode)
+
+  (straight-use-package 'rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+#+end_src
+
+* Editor enhance
+
+** Paredit
+
+#+begin_src elisp
+  (straight-use-package 'paredit)
+  (require 'paredit)
+  (define-key paredit-mode-map (kbd "[") 'paredit-open-round)
+  (define-key paredit-mode-map (kbd "(") 'paredit-open-square)
+  (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
+  (define-key paredit-mode-map (kbd "M-{") 'paredit-wrap-curly)
+  (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+#+end_src
+
+** Windows Management
+
+*** Windmove
+
+#+begin_src elisp
+  (add-hook 'after-init-hook 'windmove-default-keybindings)
+#+end_src
+
+*** Ace-window
+
+#+begin_src elisp
+  (straight-use-package 'ace-window)
+  (global-set-key (kbd "M-o") #'ace-window)
+  (global-set-key (kbd "M-O") #'ace-swap-window)
+  (global-set-key (kbd "C-x /") #'split-window-right)
+  (global-set-key (kbd "C-x -") #'split-window-below)
+#+end_src
+
+*** Eyebrowse
+
+#+begin_src elisp
+  (straight-use-package '(eyebrowse :depth full))
+  (eyebrowse-mode 1)
+#+end_src
+
+* UI
+
+Disable extra utilities:
+#+begin_src elisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+** Color theme.
+
+#+begin_src elisp
+  (straight-use-package 'color-theme-sanityinc-tomorrow)
+  (load-theme 'sanityinc-tomorrow-day t)
+#+end_src
+
+** Modeline
+#+begin_src elisp
+  (straight-use-package 'minions)
+  (add-hook 'after-init-hook #'minions-mode)
+#+end_src
+
+** Fonts
+
+#+begin_src elisp
+  (set-frame-font "JetBrains Mono" nil t)
+#+end_src
+
+** Which-Key
+
+#+begin_src emacs-lisp
+  (straight-use-package 'which-key)
+  (add-hook 'after-init-hook 'which-key-mode)
+  (setq which-key-idle-delay 0.5
+        which-key-add-column-padding 1)
+#+end_src
+
+* Completions System
+
+** Vertico
+
+#+begin_src emacs-lisp
+  (straight-use-package '(vertico :files (:defaults "extensions/*")))
+  (straight-use-package '(prescient :files (:defaults "*.el")))
+
+  (require 'vertico)
+  (require 'prescient)
+
+  (setq completion-styles '(prescient))
+  (vertico-mode 1)
+  (vertico-prescient-mode 1)
+  (prescient-persist-mode 1)
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp
+  (straight-use-package 'consult)
+#+end_src
+
+** Marginalia
+
+#+begin_src elisp
+  (straight-use-package 'marginalia)
+  (marginalia-mode)
+#+end_src
+
+** Embark
+
+#+begin_src elisp
+  (straight-use-package 'embark)
+  (straight-use-package 'embark-consult)
+#+end_src
+
+** Company
+
+#+begin_src emacs-lisp
+  (straight-use-package 'company)
+
+  (add-hook 'prog-mode-hook 'company-mode)
+  (add-hook 'conf-mode-hook 'company-mode)
+  (autoload 'company-mode "company" nil t)
+
+  (setq company-idle-delay 0.1
+        company-minimum-prefix-length 2
+        company-show-quick-access t)
+
+  (with-eval-after-load "company"
+    (require 'company-tng)
+
+    (company-prescient-mode 1)
+
+    (add-hook 'company-mode-hook 'company-tng-mode)
+
+    (define-key company-mode-map (kbd "M-n") 'company-complete-common)
+
+    (define-key company-active-map (kbd "TAB") nil)
+    (define-key company-active-map [tab] nil)
+    (define-key company-active-map (kbd "C-n") nil)
+    (define-key company-active-map (kbd "C-p") nil)
+    (define-key company-active-map (kbd "M-n") 'company-select-next)
+    (define-key company-active-map (kbd "M-p") 'company-select-previous)
+
+    ;; Free SPC and RET, popup will no longer interrupt typing.
+    (define-key company-active-map [escape] nil)
+    (define-key company-active-map [return] nil)
+    (define-key company-active-map (kbd "RET") nil)
+    (define-key company-active-map (kbd "SPC") nil))
+
+#+end_src
+
+* Dired
+
+#+begin_src elisp
+  (require 'dired)
+  (setq dired-recursive-deletes 'always
+        dired-recursive-copies 'always
+        dired-auto-revert-buffer t
+        dired-dwim-target t)
+
+  (global-set-key (kbd "C-x D") #'dired-jump-other-window)
+  (define-key dired-mode-map (kbd "C-c C-p") 'wdired-change-to-wdired-mode)
+  (define-key dired-mode-map (kbd "C-c +")   'dired-create-empty-file)
+
+  (add-hook 'dired-mode-hook 'dired-omit-mode)
+
+  (defun dired-open-externally (&optional arg)
+      "Open marked or current file in operating system's default application."
+      (interactive "P")
+      (dired-map-over-marks
+       (consult-file-externally (dired-get-filename))
+       arg))
+
+  (straight-use-package 'dired+)
+#+end_src
+
+* Org
+
+* Modal Editing
+
+#+begin_src emacs-lisp
+  (straight-use-package 'evil)
+  (setq evil-want-keybinding nil)
+  (require 'evil)
+  (evil-mode 1)
+
+  (straight-use-package 'evil-collection)
+  (when (require 'evil-collection nil t)
+    (evil-collection-init))
+
+  (straight-use-package 'evil-surround)
+  (global-evil-surround-mode 1)
+#+end_src
+
+* Text
+
+** PDF reader
+
+#+begin_src elisp
+  (straight-use-package 'pdf-tools)
+  (pdf-tools-install)
+#+end_src
+
+** EPUB reader
+
+#+begin_src elisp
+  (straight-use-package 'nov)
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+#+end_src
+
+* Programming
+
+** Magit
+
+#+begin_src emacs-lisp
+  (straight-use-package 'magit)
+  (straight-use-package 'diff-hl)
+  (straight-use-package 'smerge-mode)
+
+  (autoload 'magit "magit" nil t)
+  (autoload 'diff-hl-mode "diff-hl" nil t)
+  (autoload 'diff-hl-dired-mode "diff-hl-dired" nil t)
+  (autoload 'smerge-mode "smerge-mode" nil t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+  (add-hook 'prog-mode-hook 'diff-hl-mode)
+  (add-hook 'conf-mode-hook 'diff-hl-mode)
+#+end_src
+
+** Agda
+
+#+begin_src emacs-lisp
+  (when (executable-find "agda-mode")
+    (load-file (let ((coding-system-for-read 'utf-8))
+                 (shell-command-to-string "agda-mode locate"))))
+#+end_src
+
+** Common Lisp
+
+#+begin_src elisp
+  (straight-use-package 'slime)
+  (straight-use-package 'slime-company)
+
+  (setq inferior-lisp-program "sbcl"
+        slime-contribs '(slime-fancy
+                         slime-indentation
+                         slime-sbcl-exts
+                         slime-company)
+        slime-complete-symbol*-fancy t
+        slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+
+  (add-hook 'slime-mode-hook 'paredit-mode)
+#+end_src
+
+** Haskell
+
+#+begin_src elisp
+  (straight-use-package 'haskell-mode)
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+  (add-hook 'haskell-mode-hook 'eglot-ensure)
+#+end_src
+
+** Racket
+
+#+begin_src elisp
+  (straight-use-package 'racket-mode)
+
+  (add-hook 'racket-mode-hook 'paredit-mode)
+#+end_src
