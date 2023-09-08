@@ -96,7 +96,7 @@
 ** Enhace Scroll
 
 #+begin_src emacs-lisp
-  (pixel-scroll-precision-mode)
+  ;;(pixel-scroll-precision-mode)
 #+end_src
 
 ** Recent opening files
@@ -315,22 +315,6 @@ Disable extra utilities:
 
 * Org
 
-* Modal Editing
-
-#+begin_src emacs-lisp
-  (straight-use-package 'evil)
-  (setq evil-want-keybinding nil)
-  (require 'evil)
-  (evil-mode 1)
-
-  (straight-use-package 'evil-collection)
-  (when (require 'evil-collection nil t)
-    (evil-collection-init))
-
-  (straight-use-package 'evil-surround)
-  (global-evil-surround-mode 1)
-#+end_src
-
 * Text
 
 ** PDF reader
@@ -373,7 +357,8 @@ Disable extra utilities:
 #+begin_src emacs-lisp
   (when (executable-find "agda-mode")
     (load-file (let ((coding-system-for-read 'utf-8))
-                 (shell-command-to-string "agda-mode locate"))))
+                 (shell-command-to-string "agda-mode locate")))
+    (global-set-key (kbd "C-c C-<return>") 'agda2-load))
 #+end_src
 
 ** Common Lisp
