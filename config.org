@@ -315,6 +315,8 @@ Disable extra utilities:
 
 * Org
 
+* LaTex
+
 * Text
 
 ** PDF reader
@@ -393,4 +395,16 @@ Disable extra utilities:
   (straight-use-package 'racket-mode)
 
   (add-hook 'racket-mode-hook 'paredit-mode)
+#+end_src
+
+** Coq
+
+#+begin_src elisp
+  (straight-use-package 'proof-general)
+
+  (setq proof-splash-enable nil
+        proof-three-window-enable t)
+
+  (straight-use-package 'company-coq)
+  (add-hook 'coq-mode-hook 'company-coq-mode)
 #+end_src
