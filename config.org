@@ -15,9 +15,6 @@
     (load bootstrap-file nil 'nomessage))
 #+end_src
 
-#+RESULTS:
-: t
-
 * Internal Utilities
 
 ** Better Default
@@ -92,8 +89,6 @@
 
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-
-
   (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
@@ -147,6 +142,41 @@
 
   (straight-use-package 'rainbow-delimiters)
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+
+  (add-hook 'after-init-hook 'show-paren-mode)
+  (setq show-paren-when-point-inside-paren t
+        show-paren-when-point-in-periphery t)
+#+end_src
+
+** Eshell
+
+#+begin_src emacs-lisp
+  (require 'eshell)
+  (require 'em-smart)
+  (setq eshell-where-to-jump 'begin
+        eshell-review-quick-commands nil
+        eshell-smart-space-goes-to-end t)
+
+  (defun mu-eshell-toggle ()
+    "Toggle a persistent eshell popup window."
+    (interactive)
+    (defun shell-delete-window (&optional win)
+      "Delete WIN wrapper."
+      (ignore-errors (delete-window win)))
+    (if-let ((win (get-buffer-window "*eshell-popup*")))
+        (if (eq (selected-window) win)
+            ;; If users attempt to delete the sole ordinary window. silence it.
+            (shell-delete-window)
+          (select-window win))
+      (let ((display-comint-buffer-action '(display-buffer-at-bottom
+                                            (inhibit-same-window . nil)))
+            (eshell-buffer-name "*eshell-popup*"))
+        (split-window-vertically)
+        (other-window 1)
+        (with-current-buffer (eshell)
+          (add-hook 'eshell-exit-hook 'shell-delete-window nil t)))))
+
+  (global-set-key (kbd "<f9>") 'mu-eshell-toggle)
 #+end_src
 
 * Editor enhance
@@ -326,7 +356,30 @@ Disable extra utilities:
 
 * Org
 
-* LaTex
+* TeX
+
+#+begin_src elisp
+  (straight-use-package 'auctex)
+  (straight-use-package 'company-auctex)
+
+  (defun mu-tex-helper-mode ()
+    (visual-line-mode 1)
+    (flymake-mode 1)
+    (prettify-symbols-mode 1)
+    (TeX-fold-mode 1)
+    (company-auctex-init)
+    (company-mode 1))
+
+  (add-hook 'LaTeX-mode-hook 'mu-tex-helper-mode)
+  (add-hook 'plain-TeX-mode-hook 'mu-tex-helper-mode)
+
+  (setq TeX-auto-save t
+        TeX-parse-self t
+        TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex
+        TeX-master nil
+        TeX-engine 'xetex)
+#+end_src
 
 * Text
 
