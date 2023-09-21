@@ -24,6 +24,8 @@
 
 #+begin_src emacs-lisp
   (setq-default
+   ;; Ask before quit
+   confirm-kill-emacs 'y-or-n-p
    inhibit-startup-screen t
    ;; Don't display comp warnings
    warning-suppress-log-types '((comp))
@@ -90,6 +92,8 @@
 
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+
+
   (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
@@ -104,8 +108,15 @@
 #+begin_src elisp
   (add-hook 'after-init-hook 'recentf-mode)
   (setq recentf-max-saved-items 300
-        recentf-auto-cleanup 'never)
-  (global-set-key (kbd "C-x C-r") 'recentf)
+        recentf-exclude '("\\.?cache"
+                           ".cask"p
+                           "url"
+                           "COMMIT_EDITMSG\\'"
+                           "bookmarks"
+                           "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\|bmp\\|xpm\\)$"
+                           "\\.?ido\\.last$" "\\.revive$" "/G?TAGS$" "/.elfeed/"
+                           (lambda (file) (file-in-directory-p file package-user-dir))))
+  (global-set-key (kbd "C-x C-r") 'consult-recent-file)
 #+end_src
 
 ** Line number
