@@ -462,37 +462,16 @@ Disable extra utilities:
 ** Agda
 
 #+begin_src emacs-lisp
-  ;; find the weird unicode typing methods
-  (defvar mu-agda-last-post-command-position 0
-    "Holds the cursor position fromthe last run of post-command-hooks.")
-
-  (make-variable-buffer-local 'mu-agda-last-post-command-position)
-
-  (defun mu-agda-unciode-helper-if-moved ()
-    "Output unicode input method if I moved."
-    (defun mu-agda-unicode-input-helper ()
-      "Get the current unicode input method."
-      (interactive)
-      (let* ((current-char (char-after)))
-        ;; check if the char is in typable ascii range
-        (unless (and (>= current-char 32) (<= current-char 126))
-          (let ((output-msg
-                 (--reduce (format "%s, %s" acc it)
-                           (quail-find-key current-char))))
-            (message (format "Type: %s in Agda" output-msg))))))
-    (let ((pos (point)))
-      (when (and (not (equal pos mu-agda-last-post-command-position))
-                 (not (eobp)) (not (eolp)))
-        (mu-agda-unicode-input-helper)
-        (setq last-post-command-position pos))))
-
-  (add-hook 'agda2-mode-hook
-            (lambda ()
-              (add-to-list 'post-command-hook #'mu-agda-unciode-helper-if-moved)))
+  (straight-use-package
+   '(agda-symbol-helper-mode
+     :type git
+     :host github
+     :repo "erupmi/agda-symbol-helper-mode"))
 
   (when (executable-find "agda-mode")
     (load-file (let ((coding-system-for-read 'utf-8))
                  (shell-command-to-string "agda-mode locate")))
+    (add-hook 'agda2-mode-hook 'agda-symbol-helper-mode)
     (global-set-key (kbd "C-c C-<return>") 'agda2-load))
 #+end_src
 
