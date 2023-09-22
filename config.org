@@ -81,8 +81,6 @@
    ;; Don't echo multiline eldoc
    eldoc-echo-area-use-multiline-p nil)
 
-  (show-paren-mode -1)
-
   (global-subword-mode 1)
 
   (global-hl-line-mode t)
@@ -111,7 +109,7 @@
                            "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\|bmp\\|xpm\\)$"
                            "\\.?ido\\.last$" "\\.revive$" "/G?TAGS$" "/.elfeed/"
                            (lambda (file) (file-in-directory-p file package-user-dir))))
-  (global-set-key (kbd "C-x C-r") 'consult-recent-file)
+  (global-set-key (kbd "C-c r") 'consult-recent-file)
 #+end_src
 
 ** Line number
@@ -179,7 +177,46 @@
   (global-set-key (kbd "<f9>") 'mu-eshell-toggle)
 #+end_src
 
+** Better Commands
+
+I don't use modal editing any more, so we need some solutions to free our hands.
+
+*** Repeat mode
+
+#+begin_src elisp
+  (add-hook 'after-init-hook 'repeat-mode)
+  (setq repeat-exit-key (kbd "RET"))
+#+end_src
+
 * Editor enhance
+
+** Searching
+
+*** ISearch
+
+#+begin_src elisp
+  (setq isearch-lax-whitespace t
+        isearch-regexp-lax-whitespace t
+        isearch-allow-motion t
+        isearch-motion-changes-direction t
+        isearch-lazy-count t
+        isearch-lazy-highlight t
+        lazy-count-prefix-format "%s/%s "
+        lazy-highlight-cleanup nil)
+#+end_src
+
+*** ripgrep
+
+#+begin_src elisp
+  (straight-use-package 'rg)
+  (add-hook 'after-init-hook 'rg-enable-default-bindings)
+#+end_src
+
+** Delete Selcted Area
+
+#+begin_src elisp
+  (add-hook 'after-init-hook 'delete-selection-mode)
+#+end_src
 
 ** Paredit
 
@@ -221,6 +258,7 @@
 * UI
 
 Disable extra utilities:
+
 #+begin_src elisp
   (tool-bar-mode -1)
   (menu-bar-mode -1)
@@ -354,9 +392,11 @@ Disable extra utilities:
   (straight-use-package 'dired+)
 #+end_src
 
-* Org
+* Texting
 
-* TeX
+** Org
+
+** TeX
 
 #+begin_src elisp
   (straight-use-package 'auctex)
@@ -381,16 +421,17 @@ Disable extra utilities:
         TeX-engine 'xetex)
 #+end_src
 
-* Text
+* Reader
 
-** PDF reader
+** PDF
 
 #+begin_src elisp
   (straight-use-package 'pdf-tools)
   (pdf-tools-install)
+  (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
 #+end_src
 
-** EPUB reader
+** EPUB
 
 #+begin_src elisp
   (straight-use-package 'nov)
@@ -421,6 +462,34 @@ Disable extra utilities:
 ** Agda
 
 #+begin_src emacs-lisp
+  ;; find the weird unicode typing methods
+  (defvar mu-agda-last-post-command-position 0
+    "Holds the cursor position fromthe last run of post-command-hooks.")
+
+  (make-variable-buffer-local 'mu-agda-last-post-command-position)
+
+  (defun mu-agda-unciode-helper-if-moved ()
+    "Output unicode input method if I moved."
+    (defun mu-agda-unicode-input-helper ()
+      "Get the current unicode input method."
+      (interactive)
+      (let* ((current-char (char-after)))
+        ;; check if the char is in typable ascii range
+        (unless (and (>= current-char 32) (<= current-char 126))
+          (let ((output-msg
+                 (--reduce (format "%s, %s" acc it)
+                           (quail-find-key current-char))))
+            (message (format "Type: %s in Agda" output-msg))))))
+    (let ((pos (point)))
+      (when (and (not (equal pos mu-agda-last-post-command-position))
+                 (not (eobp)) (not (eolp)))
+        (mu-agda-unicode-input-helper)
+        (setq last-post-command-position pos))))
+
+  (add-hook 'agda2-mode-hook
+            (lambda ()
+              (add-to-list 'post-command-hook #'mu-agda-unciode-helper-if-moved)))
+
   (when (executable-find "agda-mode")
     (load-file (let ((coding-system-for-read 'utf-8))
                  (shell-command-to-string "agda-mode locate")))
