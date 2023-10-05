@@ -429,6 +429,7 @@ Disable extra utilities:
   (straight-use-package 'pdf-tools)
   (pdf-tools-install)
   (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
+  (add-hook 'pdf-tools-enabled-hook (lambda () (display-line-numbers-mode -1)))
 #+end_src
 
 ** EPUB
