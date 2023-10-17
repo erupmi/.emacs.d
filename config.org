@@ -314,6 +314,7 @@ Disable extra utilities:
 
 #+begin_src emacs-lisp
   (straight-use-package 'consult)
+  (global-set-key (kbd "C-x b") #'consult-buffer)
 #+end_src
 
 ** Marginalia
@@ -395,6 +396,10 @@ Disable extra utilities:
 * Texting
 
 ** Org
+
+#+begin_src elisp
+  (add-hook 'org-mode-hook #'auto-fill-mode)
+#+end_src
 
 ** TeX
 
