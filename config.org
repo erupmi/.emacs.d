@@ -398,7 +398,8 @@ Disable extra utilities:
 ** Org
 
 #+begin_src elisp
-  (add-hook 'org-mode-hook #'auto-fill-mode)
+  (add-hook 'org-mode-hook #'visual-line-mode)
+  (add-hook 'org-mode-hook #'org-toggle-pretty-entities)
 #+end_src
 
 ** TeX
