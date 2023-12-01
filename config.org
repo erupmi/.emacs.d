@@ -427,6 +427,22 @@ Disable extra utilities:
         TeX-engine 'xetex)
 #+end_src
 
+* Modal Editing
+
+#+begin_src emacs-lisp
+  (straight-use-package 'evil)
+  (setq evil-want-keybinding nil)
+  (require 'evil)
+  (evil-mode 1)
+
+  (straight-use-package 'evil-collection)
+  (when (require 'evil-collection nil t)
+    (evil-collection-init))
+
+  (straight-use-package 'evil-surround)
+  (global-evil-surround-mode 1)
+#+end_src
+
 * Reader
 
 ** PDF
@@ -514,6 +530,26 @@ Disable extra utilities:
   (straight-use-package 'racket-mode)
 
   (add-hook 'racket-mode-hook 'paredit-mode)
+#+end_src
+
+** Rust
+
+#+begin_src elisp
+  (straight-use-package 'cargo)
+
+  (autoload 'cargo-minor-mode "cargo" nil t)
+  (add-hook 'rust-ts-mode-hook 'cargo-minor-mode)
+
+  (with-eval-after-load "cargo"
+    (define-key cargo-process-mode-map (kbd "/") 'scroll-down)    (define-key cargo-process-mode-map (kbd "?") 'scroll-down-line)
+    (define-key cargo-process-mode-map (kbd "@") 'scroll-up)
+    (define-key cargo-process-mode-map (kbd "^") 'scroll-up-line)
+    (define-key cargo-process-mode-map (kbd "\\") 'toggle-truncate-lines))
+
+  (straight-use-package 'rust-mode)
+  (with-eval-after-load "rust-mode"
+    (add-hook 'rust-mode-hook 'cargo-minor-mode)
+    (add-hook 'rust-mode-hook 'eglot-ensure))
 #+end_src
 
 ** Coq
