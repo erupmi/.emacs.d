@@ -93,7 +93,7 @@
 ** Enhace Scroll
 
 #+begin_src emacs-lisp
-  ;;(pixel-scroll-precision-mode)
+  (pixel-scroll-precision-mode)
 #+end_src
 
 ** Recent opening files
@@ -109,7 +109,7 @@
                            "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\|bmp\\|xpm\\)$"
                            "\\.?ido\\.last$" "\\.revive$" "/G?TAGS$" "/.elfeed/"
                            (lambda (file) (file-in-directory-p file package-user-dir))))
-  (global-set-key (kbd "C-c r") 'consult-recent-file)
+  (global-set-key (kbd "C-x C-r") 'consult-recent-file)
 #+end_src
 
 ** Line number
@@ -281,7 +281,7 @@ Disable extra utilities:
 ** Fonts
 
 #+begin_src elisp
-  (set-frame-font "JetBrains Mono 11" nil t)
+  (set-frame-font "JetBrains Mono 13" nil t)
 #+end_src
 
 ** Which-Key
@@ -315,6 +315,8 @@ Disable extra utilities:
 #+begin_src emacs-lisp
   (straight-use-package 'consult)
   (global-set-key (kbd "C-x b") #'consult-buffer)
+  (global-set-key (kbd "C-c f") #'consult-flymake)
+  (global-set-key (kbd "C-c r") #'consult-ripgrep)
 #+end_src
 
 ** Marginalia
@@ -368,6 +370,18 @@ Disable extra utilities:
 
 #+end_src
 
+** yasnippet
+
+#+begin_src elisp
+  (straight-use-package 'yasnippet)
+  (straight-use-package 'yasnippet-snippets)
+  (straight-use-package 'consult-yasnippet)
+
+  (require 'yasnippet)
+  (yas-global-mode 1)
+  (global-set-key (kbd "C-c .") 'consult-yasnippet)
+#+end_src
+
 * Dired
 
 #+begin_src elisp
@@ -395,11 +409,18 @@ Disable extra utilities:
 
 * Texting
 
+** Ispell
+
+#+begin_src elisp
+  (setq ispell-program-name "hunspell")
+#+end_src
+
 ** Org
 
 #+begin_src elisp
   (add-hook 'org-mode-hook #'visual-line-mode)
   (add-hook 'org-mode-hook #'org-toggle-pretty-entities)
+  (add-hook 'org-mode-hook #'flyspell-mode)
 #+end_src
 
 ** TeX
@@ -411,6 +432,7 @@ Disable extra utilities:
   (defun mu-tex-helper-mode ()
     (visual-line-mode 1)
     (flymake-mode 1)
+    (flyspell-mode 1)
     (prettify-symbols-mode 1)
     (TeX-fold-mode 1)
     (company-auctex-init)
@@ -433,6 +455,7 @@ Disable extra utilities:
   (straight-use-package 'evil)
   (setq evil-want-keybinding nil)
   (require 'evil)
+  (evil-set-undo-system 'undo-redo)
   (evil-mode 1)
 
   (straight-use-package 'evil-collection)
@@ -449,7 +472,7 @@ Disable extra utilities:
 
 #+begin_src elisp
   (straight-use-package 'pdf-tools)
-  (pdf-tools-install)
+  ;; (pdf-tools-install)
   (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
   (add-hook 'pdf-tools-enabled-hook (lambda () (display-line-numbers-mode -1)))
 #+end_src
@@ -515,43 +538,6 @@ Disable extra utilities:
   (add-hook 'slime-mode-hook 'paredit-mode)
 #+end_src
 
-** Haskell
-
-#+begin_src elisp
-  (straight-use-package 'haskell-mode)
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-  (add-hook 'haskell-mode-hook 'haskell-doc-mode)
-  (add-hook 'haskell-mode-hook 'eglot-ensure)
-#+end_src
-
-** Racket
-
-#+begin_src elisp
-  (straight-use-package 'racket-mode)
-
-  (add-hook 'racket-mode-hook 'paredit-mode)
-#+end_src
-
-** Rust
-
-#+begin_src elisp
-  (straight-use-package 'cargo)
-
-  (autoload 'cargo-minor-mode "cargo" nil t)
-  (add-hook 'rust-ts-mode-hook 'cargo-minor-mode)
-
-  (with-eval-after-load "cargo"
-    (define-key cargo-process-mode-map (kbd "/") 'scroll-down)    (define-key cargo-process-mode-map (kbd "?") 'scroll-down-line)
-    (define-key cargo-process-mode-map (kbd "@") 'scroll-up)
-    (define-key cargo-process-mode-map (kbd "^") 'scroll-up-line)
-    (define-key cargo-process-mode-map (kbd "\\") 'toggle-truncate-lines))
-
-  (straight-use-package 'rust-mode)
-  (with-eval-after-load "rust-mode"
-    (add-hook 'rust-mode-hook 'cargo-minor-mode)
-    (add-hook 'rust-mode-hook 'eglot-ensure))
-#+end_src
-
 ** Coq
 
 #+begin_src elisp
@@ -562,4 +548,12 @@ Disable extra utilities:
 
   (straight-use-package 'company-coq)
   (add-hook 'coq-mode-hook 'company-coq-mode)
+#+end_src
+
+** Racket
+
+#+begin_src elisp
+  (straight-use-package 'racket-mode)
+
+  (add-hook 'racket-mode-hook 'paredit-mode)
 #+end_src
