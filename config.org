@@ -3,8 +3,11 @@
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 6))
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 7))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
           (url-retrieve-synchronously
@@ -179,8 +182,6 @@
 
 ** Better Commands
 
-I don't use modal editing any more, so we need some solutions to free our hands.
-
 *** Repeat mode
 
 #+begin_src elisp
@@ -205,7 +206,7 @@ I don't use modal editing any more, so we need some solutions to free our hands.
         lazy-highlight-cleanup nil)
 #+end_src
 
-*** ripgrep
+*** Grep
 
 #+begin_src elisp
   (straight-use-package 'rg)
@@ -228,6 +229,16 @@ I don't use modal editing any more, so we need some solutions to free our hands.
   (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
   (define-key paredit-mode-map (kbd "M-{") 'paredit-wrap-curly)
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode)
+#+end_src
+
+** Cursor movement
+
+#+begin_src elisp
+  (straight-use-package 'avy)
+  (global-set-key (kbd "M-g f") 'avy-goto-line)
+  (global-set-key (kbd "M-g w") 'avy-goto-word-1)
+  (global-set-key (kbd "M-g e") 'avy-goto-word-0)
+  (global-set-key (kbd "C-c j") 'avy-resume)
 #+end_src
 
 ** Windows Management
