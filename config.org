@@ -219,6 +219,12 @@
   (add-hook 'after-init-hook 'delete-selection-mode)
 #+end_src
 
+** Undo System
+
+#+begin_src elisp
+  (straight-use-package 'vundo)
+#+end_src
+
 ** Paredit
 
 #+begin_src elisp
