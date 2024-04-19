@@ -333,53 +333,31 @@ Disable extra utilities:
   (straight-use-package 'embark-consult)
 #+end_src
 
-** Company
+** Completion
 
 #+begin_src emacs-lisp
-  (straight-use-package 'company)
+  (straight-use-package 'corfu)
+  (setq corfu-auto t
+        corfu-quit-at-boundary nil
+        corfu-quit-no-match t
+        corfu-cycle t
+        corfu-preselect 'prompt
+        corfu-preview-current t)
 
-  (add-hook 'prog-mode-hook 'company-mode)
-  (add-hook 'conf-mode-hook 'company-mode)
-  (autoload 'company-mode "company" nil t)
+  ;; tab and go
+  (with-eval-after-load "corfu"
+    (define-key corfu-map (kbd "TAB") 'corfu-next)
+    (define-key corfu-map [tab] 'corfu-next)
+    (define-key corfu-map [?\S-\t] 'corfu-previous)
+    (define-key corfu-map [backtab] 'corfu-previous))
 
-  (setq company-idle-delay 0.1
-        company-minimum-prefix-length 2
-        company-show-quick-access t)
+  (global-corfu-mode)
 
-  (with-eval-after-load "company"
-    (require 'company-tng)
-
-    (company-prescient-mode 1)
-
-    (add-hook 'company-mode-hook 'company-tng-mode)
-
-    (define-key company-mode-map (kbd "M-n") 'company-complete-common)
-
-    (define-key company-active-map (kbd "TAB") nil)
-    (define-key company-active-map [tab] nil)
-    (define-key company-active-map (kbd "C-n") nil)
-    (define-key company-active-map (kbd "C-p") nil)
-    (define-key company-active-map (kbd "M-n") 'company-select-next)
-    (define-key company-active-map (kbd "M-p") 'company-select-previous)
-
-    ;; Free SPC and RET, popup will no longer interrupt typing.
-    (define-key company-active-map [escape] nil)
-    (define-key company-active-map [return] nil)
-    (define-key company-active-map (kbd "RET") nil)
-    (define-key company-active-map (kbd "SPC") nil))
-
-#+end_src
-
-** yasnippet
-
-#+begin_src elisp
-  (straight-use-package 'yasnippet)
-  (straight-use-package 'yasnippet-snippets)
-  (straight-use-package 'consult-yasnippet)
-
-  (require 'yasnippet)
-  (yas-global-mode 1)
-  (global-set-key (kbd "C-c .") 'consult-yasnippet)
+  (straight-use-package 'cape)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
 #+end_src
 
 * Dired
@@ -427,16 +405,13 @@ Disable extra utilities:
 
 #+begin_src elisp
   (straight-use-package 'auctex)
-  (straight-use-package 'company-auctex)
 
   (defun mu-tex-helper-mode ()
     (visual-line-mode 1)
     (flymake-mode 1)
     (flyspell-mode 1)
     (prettify-symbols-mode 1)
-    (TeX-fold-mode 1)
-    (company-auctex-init)
-    (company-mode 1))
+    (TeX-fold-mode 1))
 
   (add-hook 'LaTeX-mode-hook 'mu-tex-helper-mode)
   (add-hook 'plain-TeX-mode-hook 'mu-tex-helper-mode)
@@ -449,6 +424,32 @@ Disable extra utilities:
         TeX-engine 'xetex)
 #+end_src
 
+** Tempoel
+
+#+begin_src elisp
+  (straight-use-package 'tempel)
+  (global-set-key (kbd "M-+") 'tempel-complete)
+  (global-set-key (kbd "M-*") 'tempel-insert)
+
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  (straight-use-package 'tempel-collection)
+#+end_src
+
 * Modal Editing
 
 #+begin_src emacs-lisp
@@ -459,12 +460,16 @@ Disable extra utilities:
   (evil-mode 1)
 
   (straight-use-package 'evil-collection)
+  (setq evil-collection-corfu-key-themes '(tab-n-go))
   (when (require 'evil-collection nil t)
     (evil-collection-init))
 
   (straight-use-package 'evil-surround)
   (global-evil-surround-mode 1)
 #+end_src
+
+#+RESULTS:
+: t
 
 * Reader
 
@@ -524,18 +529,9 @@ Disable extra utilities:
 ** Common Lisp
 
 #+begin_src elisp
-  (straight-use-package 'slime)
-  (straight-use-package 'slime-company)
-
-  (setq inferior-lisp-program "sbcl"
-        slime-contribs '(slime-fancy
-                         slime-indentation
-                         slime-sbcl-exts
-                         slime-company)
-        slime-complete-symbol*-fancy t
-        slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-
-  (add-hook 'slime-mode-hook 'paredit-mode)
+  (straight-use-package 'sly)
+  (setq inferior-lisp-program "sbcl")
+  (add-hook 'sly-mode-hook 'paredit-mode)
 #+end_src
 
 ** Coq
@@ -545,9 +541,6 @@ Disable extra utilities:
 
   (setq proof-splash-enable nil
         proof-three-window-enable t)
-
-  (straight-use-package 'company-coq)
-  (add-hook 'coq-mode-hook 'company-coq-mode)
 #+end_src
 
 ** Racket
