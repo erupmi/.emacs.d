@@ -149,6 +149,14 @@
         show-paren-when-point-in-periphery t)
 #+end_src
 
+** Show Indent
+
+#+begin_src emacs-lisp
+  (straight-use-package 'highlight-indent-guides)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'column)
+#+end_src
+
 ** Eshell
 
 #+begin_src emacs-lisp
@@ -285,8 +293,12 @@ Disable extra utilities:
 ** Color theme.
 
 #+begin_src elisp
-  (straight-use-package 'color-theme-sanityinc-tomorrow)
-  (load-theme 'sanityinc-tomorrow-day t)
+  (straight-use-package 'doom-themes)
+  (load-theme 'doom-one-light t)
+  (doom-themes-org-config)
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (doom-themes-visual-bell-config)
 #+end_src
 
 ** Modeline
