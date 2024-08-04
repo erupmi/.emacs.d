@@ -40,6 +40,7 @@
    default-terminal-coding-system 'utf-8-unix
    ;; Add newline at bottom of file
    require-final-newline t
+   enable-recursive-minibuffers t
    ;; Backup setups
    ;; We use temporary directory /tmp for backup files
    ;; More versions should be saved
@@ -327,15 +328,26 @@ Disable extra utilities:
 
 #+begin_src emacs-lisp
   (straight-use-package '(vertico :files (:defaults "extensions/*")))
-  (straight-use-package '(prescient :files (:defaults "*.el")))
+  (straight-use-package 'orderless)
 
   (require 'vertico)
-  (require 'prescient)
 
-  (setq completion-styles '(prescient))
+  (setq completion-styles '(orderless basic)
+        completion-category-overrides
+        '((file (styles basic partial-completion)))
+        orderless-matching-styles
+        '(orderless-literal
+          orderless-prefixes
+          orderless-initialism
+          orderless-regexp
+          orderless-flex                       ; Basically fuzzy finding
+          ;; orderless-strict-leading-initialism
+          ;; orderless-strict-initialism
+          ;; orderless-strict-full-initialism
+          ;; orderless-without-literal          ; Recommended for dispatches instead
+          ))
+
   (vertico-mode 1)
-  (vertico-prescient-mode 1)
-  (prescient-persist-mode 1)
 #+end_src
 
 ** Consult
@@ -359,6 +371,10 @@ Disable extra utilities:
 #+begin_src elisp
   (straight-use-package 'embark)
   (straight-use-package 'embark-consult)
+
+  (global-set-key (kbd "C-.") 'embark-act)
+  (global-set-key (kbd "C-;") 'embark-diwm)
+  (add-hook 'embark-collect-mode 'consult-preview-at-point-mode)
 #+end_src
 
 ** Completion
@@ -385,7 +401,8 @@ Disable extra utilities:
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  (add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-abbrev)
 #+end_src
 
 * Dired
@@ -573,9 +590,6 @@ Disable extra utilities:
   (meow-global-mode 1)
 #+end_src
 
-#+RESULTS:
-: t
-
 * Reader
 
 ** PDF
@@ -648,12 +662,13 @@ Disable extra utilities:
         proof-three-window-enable t)
 #+end_src
 
-** Racket
+** OCaml
 
 #+begin_src elisp
-  (straight-use-package 'racket-mode)
+  (straight-use-package 'tuareg)
 
-  (add-hook 'racket-mode-hook 'paredit-mode)
+  (add-to-list 'auto-mode-alist '("\\.ml\\'" . tuareg-mode))
+  (add-hook 'tuareg-mode-hook 'eglot-ensure)
 #+end_src
 
 ** Haskell
