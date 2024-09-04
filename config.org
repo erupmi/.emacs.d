@@ -267,6 +267,8 @@
 
 #+begin_src elisp
   (straight-use-package 'ace-window)
+  (with-eval-after-load "golden-ratio"
+                        (add-to-list 'golden-ratio-extra-commands 'ace-window))
   (global-set-key (kbd "M-o") #'ace-window)
   (global-set-key (kbd "M-O") #'ace-swap-window)
   (global-set-key (kbd "C-x /") #'split-window-right)
@@ -320,6 +322,15 @@ Disable extra utilities:
   (add-hook 'after-init-hook 'which-key-mode)
   (setq which-key-idle-delay 0.5
         which-key-add-column-padding 1)
+#+end_src
+
+** Golden Ratio
+
+#+begin_src elisp
+  (straight-use-package 'golden-ratio)
+
+  (setq golden-ratio-auto-scale t)
+  (golden-ratio-mode 1)
 #+end_src
 
 * Completions System
@@ -400,10 +411,8 @@ Disable extra utilities:
   (straight-use-package 'cape)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev)
-#+end_src
+  #+end_src
 
 * Dired
 
