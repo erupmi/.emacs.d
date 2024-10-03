@@ -4,7 +4,7 @@
 !snippet/
 # And all the file types you're interested in.
 !init.el
-!config.org
+!README.org
 !.gitignore
 !LICENSE
 # And again XD
